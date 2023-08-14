@@ -1,6 +1,6 @@
 # ViralTweets
 
-This repository contains the data for the paper "**Measuring and Detecting Virality on Social Media: The Case of Twitter's Viral Tweets Topic**". 
+This repository aims to replicate the work done by authors of paper "**Measuring and Detecting Virality on Social Media: The Case of Twitter's Viral Tweets Topic**" to establish a baseline. 
 
 Main files:
 
@@ -21,15 +21,3 @@ Others:
 ``metric_analysis``: intermediate results and codes for metric stats
 
 ``othercode``: other code
-
-Please email me tugrulcanelmas at gmail.com to get full access to data if you wish. 
-
-Please cite our paper if you use our data.
-
-### Contributors:
-
-Stephane Selim (EPFL)
-
-Célia Houssiaux (EPFL)
-
-Tuğrulcan Elmas (EPFL / IU Bloomington)
