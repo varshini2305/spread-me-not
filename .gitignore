@@ -1,1 +1,6 @@
 config/*
+!ViralTweets/*
+*.csv
+*.yaml
+*.json
+data/*
