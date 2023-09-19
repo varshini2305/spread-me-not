@@ -1,6 +1,5 @@
-config/*
-!ViralTweets/*
 *.csv
 *.yaml
 *.json
-data/*
+*/data/*
+*/config/*
