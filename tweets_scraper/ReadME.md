@@ -57,5 +57,5 @@ python search_query_tweets.py
 
 ### Check if your requirements are bound to terms and conditions
 
-[Twitter Scraping Permissions](https://www.twitter.com/robot.txt).
+[Twitter Scraping Permissions](https://www.twitter.com/robots.txt).
 
