@@ -117,3 +117,12 @@ Things to note -
   - Allow: /hashtag/*?src=
   - Allow: /search?q=%23
   - Allow: /i/api/
+
+
+### Things to do - 
+
+1. Set up a script to use the username and password to fetch the auth config info on the fly, instead of manually updating the auth params
+
+2. How or why cookies are used in the headers?
+
+3. How to avoid being tracked when the scraping resembles a suspicious activity, IP address, user-agent info etc can be avoided being passed in the request body.

@@ -16,14 +16,14 @@ import yaml
 # Email ID scraping from twitter accounts
 # # auth info
 
-with open('config/search_config.yaml', 'r') as file:
+with open('config/auth.yaml', 'r') as file:
     search_config = yaml.safe_load(file)
 
 authorization = search_config['authorization']
 x_client_transaction_id = search_config['x_client_transaction_id']
 x_client_uuid = search_config['x_client_uuid']
 x_csrf_token =  search_config['x_csrf_token']
-
+cookie = search_config['cookie']
 
 def generate_twitter_search_url(search_word):
     # URL-encode the search word
@@ -50,7 +50,7 @@ def search_tweets(search_query: str, twitter_search_url: str, referer: str, file
     'accept': '*/*',
     'accept-language': 'en-GB,en;q=0.9',
     'authorization': authorization,
-    'cookie': 'g_state={"i_p":1695038335856,"i_l":1}; lang=en; guest_id=v1%3A169503180163832738; _twitter_sess=BAh7CSIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNo%250ASGFzaHsABjoKQHVzZWR7ADoPY3JlYXRlZF9hdGwrCC23xKeKAToMY3NyZl9p%250AZCIlODMwNTVhZmM3MTY4ODA0NGYwY2I4Mjg2MzEwZDNhOWQ6B2lkIiUxZGY1%250AY2M0ODZiNDk2MGNhNDYzNjIwZGM3ZjM2NmE0Mw%253D%253D--25f7619a17dc33a454797e2088ed2b77d3f29b55; guest_id_marketing=v1%3A169503180163832738; guest_id_ads=v1%3A169503180163832738; kdt=jBQSxlWxVUctZcQZJTSABeqMXnVnXQIbvD6rzlkx; auth_token=7dfba12762e63f0abcfdbbdb4786983a3b2e0590; ct0=11c09cdbb6f0eb342ce96fbfa7744a740a8cc5022ec319e342a24c0aeabd91c1e0a3130fddf8a8abd1df3a95737d28e6a642e1b32c36fc71fc1080fdb78d5d9ec61fa2fcf7071138e7b7415f598ac94f; twid=u%3D759797697679196160; personalization_id="v1_YnYCXWgG/OkRwFMdvCCGCw=="; guest_id=v1%3A169503345039396724; guest_id_ads=v1%3A169503345039396724; guest_id_marketing=v1%3A169503345039396724; personalization_id="v1_ZhDH2ziMkJLwWp1NqpROoQ=="',
+    'cookie': cookie,
     'referer': referer,
     # 'sec-ch-ua': '"Brave";v="117", "Not;A=Brand";v="8", "Chromium";v="117"',
     # 'sec-ch-ua-mobile': '?0',
