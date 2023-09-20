@@ -3,4 +3,4 @@
 *.json
 */data/*
 */config/*
-!tweets_scraper/config/tweet_auth_extraction.md
+!tweets_scraper/config/Readme.md

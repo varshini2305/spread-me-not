@@ -100,3 +100,20 @@ Things to note -
 5. usually the referrer - is modified based on the search query and the search words within a query separarted by space are separated by %20 in the referer URL, this might come in handy when you modify the header to make search specific requests
 6. In the above case, even the url has the search query - so based on the format in which the search query occurs within the url, we can format the url used while making the request from python - for any specific search phrase.
 
+
+
+### To understand more on what kind of scraping is allowed by terms and conditions of Twitter
+
+1. check - https://twitter.com/robots.txt
+
+2. Infer - the type of requests allowed by a useragent
+
+3. Wait 1 second between successive requests. See ONBOARD-2698 for details.
+   - Crawl-delay: 1
+4. Independent of user agent. Links in the sitemap are full URLs using https:// and need to match - the protocol of the sitemap.
+   - Sitemap: https://twitter.com/sitemap.xml  
+
+5. Allowed requests - 
+  - Allow: /hashtag/*?src=
+  - Allow: /search?q=%23
+  - Allow: /i/api/
