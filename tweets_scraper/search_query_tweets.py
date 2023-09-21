@@ -12,6 +12,14 @@ import pickle
 import json
 import urllib.parse
 import yaml
+import datetime
+import logging
+
+import sys
+import os
+
+root_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(root_directory)
 
 # Email ID scraping from twitter accounts
 # # auth info
@@ -40,7 +48,7 @@ def generate_twitter_search_url(search_word):
 
 
 
-def search_tweets(search_query: str, twitter_search_url: str, referer: str, file_name: str = 'search_tweet.txt'):
+def search_tweets(search_query: str, twitter_search_url: str, referer: str):
 
     # url = "https://twitter.com/i/api/2/guide.json?include_profile_interstitial_type=1&include_blocking=1&include_blocked_by=1&include_followed_by=1&include_want_retweets=1&include_mute_edge=1&include_can_dm=1&include_can_media_tag=1&include_ext_has_nft_avatar=1&include_ext_is_blue_verified=1&include_ext_verified_type=1&include_ext_profile_image_shape=1&skip_status=1&cards_platform=Web-12&include_cards=1&include_ext_alt_text=true&include_ext_limited_action_results=true&include_quote_count=true&include_reply_count=1&tweet_mode=extended&include_ext_views=true&include_entities=true&include_user_entities=true&include_ext_media_color=true&include_ext_media_availability=true&include_ext_sensitive_media_warning=true&include_ext_trusted_friends_metadata=true&send_error_codes=true&simple_quoted_tweet=true&count=40&cursor=DefaultTopCursorValue&display_location=web_sidebar&include_page_configuration=false&entity_tokens=false&ext=mediaStats%2ChighlightedLabel%2ChasNftAvatar%2CvoiceInfo%2CbirdwatchPivot%2CsuperFollowMetadata%2CunmentionInfo%2CeditControl"
     url = twitter_search_url
@@ -77,25 +85,48 @@ def search_tweets(search_query: str, twitter_search_url: str, referer: str, file
 
     # Pretty-print the JSON dictionary
     formatted_json = json.dumps(parsed_json, indent=4)
-    print(formatted_json)
+    # print(formatted_json)
 
-    # Open the text file in append mode
-    std_file_name = 'data/search_tweets.pkl'
-    search_tweet_meta = {'search_query': search_query, 'search_results': parsed_json}
-    with open(std_file_name, 'wb') as pickle_file:
-        pickle.dump(search_tweet_meta, pickle_file)
+   
+    search_date = datetime.datetime.now().strftime('%d-%m-%Y')
+    # New entry
+    search_tweet_meta = {'search_date': search_date, 'search_query': search_query, 'search_results': parsed_json}
+    
+    # Read the existing JSON file
+    try:
+        with open('data/search_query_compilation.json', 'r') as file:
+            data = json.load(file)
+            
+        print(f"{type(data)=}, {len(data)=}")
+        # print(f"{data=}")
+        # Find the index of an existing entry with the same date or -1 if not found
+        new_data = data.copy()
+        match_doc = -1
+        
+        for index, doc in enumerate(data):
+            print(f"{index=}, {doc=}")
+            if doc['search_query'] == search_tweet_meta["search_query"] and doc['search_date'] == search_tweet_meta["search_date"]:
+                # Overwrite the existing entry with the same date
+                new_data[index]['search_results'] = parsed_json
+                # as a matching doc with same search query and on the same date already found and updated
+                match_doc = 1
+                break
+        
+        if match_doc == -1:
+                # If no match is found, append the new entry
+                new_data.append(search_tweet_meta)
 
-    # to later read pickle dump data
-    # with open('data/std_file_name.pkl', 'rb') as pickle_file:
-    #     loaded_json_data = pickle.load(pickle_file)
+        # Write back to the JSON file
+        with open('data/search_query_compilation.json', 'w') as file:
+            json.dump(new_data, file)
 
-    # print(loaded_json_data)
+    except FileNotFoundError:
+        logging.exception('created new search results compilation json')
+        with open('data/search_query_compilation.json', 'w') as json_file:
+            search_tweet_meta_list = [search_tweet_meta]
+            json.dump(search_tweet_meta_list, json_file)
 
-
-    with open(file_name, 'a') as file:
-        # Parse the JSON string into a Python dictionary
-        file.write(formatted_json + '\n')
-
+    return search_tweet_meta
 
 
 def set_referer(search_query: str = ''):
@@ -119,30 +150,26 @@ def set_file_name(search_query: str = 'search_tweet.txt'):
     return filename
 
 
-search_query = input("enter search query: ")
-filename = set_file_name(search_query)
-print(f'{filename=}')
-referer = set_referer(search_query)
+def search_for_related_trends(search_query: str = None):
 
-print(f'{referer=}')
+    # current_date = datetime.datetime.now().strftime('%d_%m')
 
-# # Example usage:
-# search_word = "sanathan dharma"
-twitter_search_url = generate_twitter_search_url(search_query)
-print(f'{twitter_search_url=}')
+    if search_query is None:
+        search_query = input("enter search query: ")
+    
+    # filename = set_file_name(search_query)
 
-search_tweets(search_query, twitter_search_url=twitter_search_url, referer=referer, file_name=filename)
+    referer = set_referer(search_query)
 
+    print(f'{referer=}')
 
-# to later read pickle dump data
-with open('data/search_tweets.pkl', 'rb') as pickle_file:
-        loaded_json_data = pickle.load(pickle_file)
-        # with open('data/search_tweets_compilation.txt', 'w') as file:
-        #     # Parse the JSON string into a Python dictionary
-        #     json_string = json.dumps(loaded_json_data)
-        #     file.write(json_string)
-        with open('data/search_tweets_compilation.json', 'w') as json_file:
-            json.dump(loaded_json_data, json_file)
+    # # Example usage:
+    # search_word = "sanathan dharma"
+    twitter_search_url = generate_twitter_search_url(search_query)
+    # print(f'{twitter_search_url=}')
+
+    search_tweet_meta = search_tweets(search_query, twitter_search_url=twitter_search_url, referer=referer)
+    return [search_tweet_meta]
 
 
-
+# search_for_related_trends()
