@@ -25,7 +25,10 @@ def display_search_results(parsed_results: list = None):
     # Create a DataFrame for easier manipulation
     df_list = []
     for res in parsed_results:
-        result = res['search_results']['parsed_results']
+        try:
+            result = res['search_results']['parsed_results']
+        except KeyError:
+            result = []
         # print(f"{result.keys()=}")
         for each in result:
             tweet_info = each["tweets_info"]

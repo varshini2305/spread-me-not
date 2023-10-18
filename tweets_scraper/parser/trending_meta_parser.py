@@ -15,7 +15,9 @@ import json
 import pandas as pd
 import sys
 import os
+import fetch_trending_tweets_of_the_day as recent_trends
 
+import datetime
 
 root_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(root_directory)
@@ -105,10 +107,29 @@ def extract_and_format_trend_type(category):
     return category
 
 def trending_meta_parser():
+    
     data = load_trending_tweets('data/trending_tweets_compilation.json')
+    
     trending_items = extract_trending_items(data)
     
+    date = data[-1]['date']
+    
     trends_meta = []
+
+    
+    current_datetime = datetime.datetime.now()
+
+    # Format the current date as a string
+    current_date = current_datetime.strftime("%d-%m-%Y")
+
+    if date != current_date:
+        # update with latest trends from present day
+        recent_trends.explore_trends()
+    
+    data = load_trending_tweets('data/trending_tweets_compilation.json')
+    
+    trending_items = extract_trending_items(data)
+    
     date = data[-1]['date']
     
     for trend in trending_items:

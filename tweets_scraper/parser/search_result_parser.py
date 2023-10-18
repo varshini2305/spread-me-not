@@ -5,6 +5,7 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import sys
 import os
+import logging
 
 root_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(root_directory)
@@ -110,33 +111,37 @@ def process_data(input_file: str = 'data/search_query_compilation.json',
             'no_of_results': None,
             'search_results': {}
         }
+        try:
+            if 'entries' in doc['search_results']['data']['search_by_raw_query']['search_timeline']['timeline']['instructions'][0].keys():
+                search_result_meta['search_results']['result_type'] = 'user' if doc['search_results']['data']['search_by_raw_query']['search_timeline']['timeline']['instructions'][0]['entries'] == 'TimelineTimelineModule' else 'tweet'
 
-        if 'entries' in doc['search_results']['data']['search_by_raw_query']['search_timeline']['timeline']['instructions'][0].keys():
-            search_result_meta['search_results']['result_type'] = 'user' if doc['search_results']['data']['search_by_raw_query']['search_timeline']['timeline']['instructions'][0]['entries'] == 'TimelineTimelineModule' else 'tweet'
+                entries = extract_info_recursive(doc, paths_to_extract)
 
-            entries = extract_info_recursive(doc, paths_to_extract)
+                parsed_entries = []
 
-            parsed_entries = []
+                for entry in entries:
+                    parsed_entry = {}
+                    valid = 1
+                    for key, value in attributes_to_extract.items():
+                        attributes_meta, valid = extract_attr_recursive(entry, value, key)
+                        attributes_meta = filter_irrelevant_keys(key, attributes_meta)
+                        parsed_entry[key] = attributes_meta
+                        valid *= valid
 
-            for entry in entries:
-                parsed_entry = {}
-                valid = 1
-                for key, value in attributes_to_extract.items():
-                    attributes_meta, valid = extract_attr_recursive(entry, value, key)
-                    attributes_meta = filter_irrelevant_keys(key, attributes_meta)
-                    parsed_entry[key] = attributes_meta
-                    valid *= valid
+                    if valid == 1:
+                        if not(parsed_entry['tweets_info'] == {} or parsed_entry['user_profile_meta'] == {}):
+                            parsed_entries.append(parsed_entry)
 
-                if valid == 1:
-                    if not(parsed_entry['tweets_info'] == {} or parsed_entry['user_profile_meta'] == {}):
-                        parsed_entries.append(parsed_entry)
-
-            if limit is True:
-                search_result_meta['search_results']['parsed_results'] = parsed_entries[:10]
-            else:
-                search_result_meta['search_results']['parsed_results'] = parsed_entries[:10]
-                
-            search_result_meta['search_results']['result_count'] = len(parsed_entries)
+                if limit is True:
+                    search_result_meta['search_results']['parsed_results'] = parsed_entries[:10]
+                else:
+                    search_result_meta['search_results']['parsed_results'] = parsed_entries[:10]
+                    
+                search_result_meta['search_results']['result_count'] = len(parsed_entries)
+        
+        except KeyError:
+            logging.exception(f"traceback: {doc=}")
+        
 
         search_results_combined.append(search_result_meta)
 
