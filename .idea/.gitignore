@@ -1,0 +1,10 @@
+# Default ignored files
+/shelf/
+/workspace.xml
+*.xml
+tweets_scraper/parser/tweet_images/*
+*.iml
+*.env
+.env
+*.jpg
+*.png
