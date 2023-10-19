@@ -4,3 +4,6 @@
 */data/*
 */config/*
 !tweets_scraper/config/Readme.md
+*.png
+*.jpg
+*.jpeg
