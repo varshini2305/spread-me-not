@@ -22,3 +22,6 @@ fake_news_data/
 *.xml
 *.iml
 tweets_scraper/parser/__pycache__/*
+.vscode/
+tweets_scraper/alpaca-lora/
+*/.idea/
