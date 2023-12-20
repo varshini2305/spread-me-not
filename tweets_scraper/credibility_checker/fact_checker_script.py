@@ -116,8 +116,13 @@ def set_query(query: str, url: str = base_url):
 from pymongo import MongoClient
 from elasticsearch import Elasticsearch
 
+import yaml
 
-connection_string = "mongodb+srv://varshinibalaji2305:xOAKb8vjC455R9o0@cluster0.ooy5gn4.mongodb.net/"
+with open('config/auth.yaml') as f:
+    mongo_info = yaml.safe_load(f)
+
+connection_string = mongo_info['mongo_connection_uri']
+
 
 def fetch_checked_facts(search_query):
     # Establish a connection to the MongoDB Atlas cluster
