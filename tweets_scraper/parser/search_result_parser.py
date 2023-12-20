@@ -1,8 +1,8 @@
 # python parser/search_result_parser.py
 import json
 import pandas as pd
-import pyarrow as pa
-import pyarrow.parquet as pq
+# import pyarrow as pa
+# import pyarrow.parquet as pq
 import sys
 import os
 import logging

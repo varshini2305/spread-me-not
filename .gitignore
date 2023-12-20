@@ -9,4 +9,16 @@
 *.jpeg
 .*ipynb
 **/.DS_Store
+*/__pycache__/
+*.ipynb
+*.toml
+*.csv
 __pycache__/
+.ipynb_checkpoints/
+*.pkl
+*.pq
+.chainlit/
+fake_news_data/
+*.xml
+*.iml
+tweets_scraper/parser/__pycache__/*

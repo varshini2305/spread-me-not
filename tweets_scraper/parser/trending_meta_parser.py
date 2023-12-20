@@ -90,7 +90,10 @@ def format_post_count(post_count):
         post_count = post_count.split(' posts')[0].replace(',', '')
         if 'K' in post_count:
             post_count = float(post_count.replace('K', '')) * 1000
-        return float(post_count)
+        try:
+            return float(post_count)
+        except Exception:
+            return 0.0
     return None
 
 def format_tuple_terms(x):

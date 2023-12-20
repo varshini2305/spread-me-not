@@ -2,7 +2,9 @@ import re
 import json
 from bs4 import BeautifulSoup
 from functools import lru_cache
-import openai
+from openai import OpenAI
+
+client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 import os
 import requests
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -12,17 +14,14 @@ from dotenv import load_dotenv, find_dotenv
 _ = load_dotenv(find_dotenv())  # read local .env file
 _ = load_dotenv('/Users/varshinibalaji/Documents/DSProjects/chatgpt_prompting/config.env')
 
-openai.api_key = os.getenv('OPENAI_API_KEY')
 
 
 @lru_cache(maxsize=None)  # Set maxsize to None for an unbounded cache
 def get_completion(prompt, model="gpt-3.5-turbo"):
     messages = [{"role": "user", "content": prompt}]
-    response = openai.ChatCompletion.create(
-        model=model,
-        messages=messages,
-        temperature=0,  # this is the degree of randomness of the model's output
-    )
+    response = client.chat.completions.create(model=model,
+    messages=messages,
+    temperature=0)
     return response.choices[0].message["content"]
 
 
@@ -113,9 +112,53 @@ def set_query(query: str, url: str = base_url):
     url += query
     # print(f'{url=}')
     return url
+    
+from pymongo import MongoClient
+from elasticsearch import Elasticsearch
 
 
-def fetch_article(processed_keyword):
+connection_string = "mongodb+srv://varshinibalaji2305:xOAKb8vjC455R9o0@cluster0.ooy5gn4.mongodb.net/"
+
+def fetch_checked_facts(search_query):
+    # Establish a connection to the MongoDB Atlas cluster
+    client = MongoClient(connection_string)
+    
+    # Access the 'facts' database and 'fact_check_articles' collection
+    db = client['facts']
+    collection = db['fact_check_articles']
+    
+    # Define the aggregation pipeline for the search
+    pipeline = [
+
+        {
+            '$search': {
+                'index': 'article_search',
+                'text': {
+                    'query': search_query,
+                    'path': 'processed_article'
+
+                }
+            }
+        },
+        {
+            '$project': {
+                '_id': 0,
+                'processed_article': 1
+
+            }
+        }
+    ]
+
+    # Execute the aggregation pipeline
+    result = list(collection.aggregate(pipeline))
+
+    # Sort the result based on hitRate in descending order
+    # result.sort(key=lambda x: x['hitRate'], reverse=True)
+
+    # Return the top 2 or 3 documents
+    return result[:3]
+
+def fetch_real_time_article(processed_keyword):
     documents = []
     url = set_query(processed_keyword)
     print(f'{processed_keyword=}')
@@ -190,6 +233,8 @@ def fetch_article(processed_keyword):
 keywords = []
 processed_keyword = ''
 
+from keybert import KeyBERT
+kw_model = KeyBERT()
 
 def replace_non_alphanumeric(input_string):
     # Use a regular expression to replace non-alphanumeric characters with spaces
@@ -203,12 +248,16 @@ def credibility_checker(x):
     keywords = []
     claim_metas = []
     for i in independent_claims:
-        keyword = generate_search_keyword(i)
-        keywords.append(generate_search_keyword(i))
+        # keyword = generate_search_keyword(i)
+        # keywords.append(generate_search_keyword(i))
+        keywords = kw_model.extract_keywords(i)
+        words = []
+        for w, s in keywords:
+            words.append(w)
         processed_keyword = ' '.join(keywords)
         processed_keyword = replace_non_alphanumeric(processed_keyword)
         keyword = replace_non_alphanumeric(keyword)
-        documents = fetch_article(keyword)
+        documents = fetch_checked_facts(keyword)
         match = most_similar_document(keyword, documents)
         claim_meta = verify_claim(x, match)
         print(f"{claim_meta=}")
@@ -216,6 +265,7 @@ def credibility_checker(x):
     return claim_metas
 
 
+@lru_cache(maxsize=None)
 def check_tweet_emotion_verify_facts(x):
     prompt = f"""
     Check if the text has triggering content, controversial, anger, hatred emotion, and 
